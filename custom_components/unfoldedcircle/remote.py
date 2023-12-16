@@ -34,7 +34,7 @@ async def async_setup_entry(
     await remote.get_docks()
 
     new_devices = []
-    new_devices.append(RemoteSensor(remote))
+    new_devices.append(RemoteSensor(remote, config_entry))
     if new_devices:
         async_add_entities(new_devices)
 
@@ -63,9 +63,10 @@ class RemoteSensor(RemoteEntity):
             configuration_url=self._remote.configuration_url,
         )
 
-    def __init__(self, remote):
+    def __init__(self, remote, config_entry):
         """Initialize the sensor."""
         self._remote = remote
+        self._config = config_entry
 
         # As per the sensor, this must be a unique value within this domain. This is done
         # by using the device ID, and appending "_battery"
@@ -81,9 +82,19 @@ class RemoteSensor(RemoteEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the entity on."""
         self._attr_is_on = True
+        _LOGGER.debug("Default activity: %s", self._config.data["defaultActivity"])
+        for activity in self._remote.activities:
+            if activity.name == self._config.data["defaultActivity"] and not activity.is_on():
+                await activity.turn_on()
+        
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the entity off."""
+        
+        for activity in self._remote.activities:
+            if activity.is_on():
+                await activity.turn_off()
+                
         self._attr_is_on = False
 
     async def async_send_command(self, command: Iterable[str], **kwargs):
