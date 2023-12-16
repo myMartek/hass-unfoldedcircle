@@ -18,7 +18,8 @@
       },
       "zeroconf_confirm": {
         "data": {
-          "pin": "PIN Code"
+          "pin": "PIN Code",
+          "defaultActivity": "Default activity"
         },
         "title": "Remote Two"
       }
@@ -28,8 +29,7 @@
     "step": {
       "init": {
         "data": {
-          "host": "Host",
-          "pin": "PIN Code"
+          "defaultActivity": "Default activity"
         }
       }
     }

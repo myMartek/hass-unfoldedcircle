@@ -11,6 +11,7 @@ from homeassistant import config_entries
 from homeassistant.components.zeroconf import ZeroconfServiceInfo
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PIN, CONF_PORT
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 
@@ -26,6 +27,10 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
     {vol.Required("pin"): str, vol.Required("defaultActivity"): str, vol.Required("host"): str}
 )
 
+STEP_OPTIONS_DATA_SCHEMA = vol.Schema(
+    {vol.Required("defaultActivity"): str}
+)
+
 STEP_ZEROCONF_DATA_SCHEMA = vol.Schema({vol.Required("pin"): str, vol.Required("defaultActivity"): str})
 
 
@@ -35,9 +40,9 @@ async def validate_input(data: dict[str, Any], host: str = "") -> dict[str, Any]
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
     if host != "":
-        remote = UCRemote(host, data["pin"], data["defaultActivity"])
+        remote = UCRemote(host, data["pin"])
     else:
-        remote = UCRemote(data["host"], data["pin"], data["defaultActivity"])
+        remote = UCRemote(data["host"], data["pin"])
 
     if not await remote.can_connect():
         raise InvalidAuth
@@ -81,11 +86,11 @@ class UnfoldedCircleRemoteConfigFlow(ConfigFlow, domain=DOMAIN):
         self.api_keyname: str = None
         self.discovery_info: dict[str, Any] = {}
 
-    # @staticmethod
-    # @callback
-    # def async_get_options_flow(config_entry: ConfigEntry) -> UnfoldedCircleRemoteOptionsFlowHandler:
-    #     """Get the options flow for this handler."""
-    #     return UnfoldedCircleRemoteOptionsFlowHandler(config_entry)
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> UnfoldedCircleRemoteOptionsFlowHandler:
+        """Get the options flow for this handler."""
+        return UnfoldedCircleRemoteOptionsFlowHandler(config_entry)
 
     async def async_step_zeroconf(self, discovery_info: ZeroconfServiceInfo):
         """Handle zeroconf discovery."""
@@ -202,7 +207,7 @@ class UnfoldedCircleRemoteOptionsFlowHandler(OptionsFlow):
 
         return self.async_show_form(
             step_id="init",
-            data_schema=STEP_USER_DATA_SCHEMA,
+            data_schema=STEP_OPTIONS_DATA_SCHEMA,
         )
 
 
