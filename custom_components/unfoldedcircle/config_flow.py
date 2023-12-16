@@ -23,10 +23,10 @@ AUTH_APIKEY_NAME = "pyUnfoldedCircle"
 AUTH_USERNAME = "web-configurator"
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
-    {vol.Required("pin"): str, vol.Required("host"): str}
+    {vol.Required("pin"): str, vol.Required("defaultActivity"): str, vol.Required("host"): str}
 )
 
-STEP_ZEROCONF_DATA_SCHEMA = vol.Schema({vol.Required("pin"): str})
+STEP_ZEROCONF_DATA_SCHEMA = vol.Schema({vol.Required("pin"): str, vol.Required("defaultActivity"): str})
 
 
 async def validate_input(data: dict[str, Any], host: str = "") -> dict[str, Any]:
@@ -35,9 +35,9 @@ async def validate_input(data: dict[str, Any], host: str = "") -> dict[str, Any]
     Data has the keys from STEP_USER_DATA_SCHEMA with values provided by the user.
     """
     if host != "":
-        remote = UCRemote(host, data["pin"])
+        remote = UCRemote(host, data["pin"], data["defaultActivity"])
     else:
-        remote = UCRemote(data["host"], data["pin"])
+        remote = UCRemote(data["host"], data["pin"], data["defaultActivity"])
 
     if not await remote.can_connect():
         raise InvalidAuth
@@ -66,13 +66,14 @@ async def validate_input(data: dict[str, Any], host: str = "") -> dict[str, Any]
         "apiKey": key,
         "host": remote.endpoint,
         "pin": data["pin"],
+        "defaultActivity": data["defaultActivity"],
         CONF_SERIAL: remote.serial_number,
     }
 
 class UnfoldedCircleRemoteConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Unfolded Circle Remote."""
 
-    VERSION = 1
+    VERSION = 2
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def __init__(self) -> None:

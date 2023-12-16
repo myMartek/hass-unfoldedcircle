@@ -12,6 +12,7 @@
       "user": {
         "data": {
           "host": "Host",
+          "defaultActivity": "Default activity",
           "pin": "PIN Code"
         }
       },

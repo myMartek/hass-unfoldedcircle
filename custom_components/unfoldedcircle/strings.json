@@ -4,12 +4,14 @@
       "user": {
         "data": {
           "pin": "[%key:common::config_flow::data::pin%]",
+          "defaultActivity": "[%key:common::config_flow::data::defaultActivity%]",
           "host": "[%key:common::config_flow::data::host%]"
         }
       },
       "zeroconf_confirm": {
         "data": {
-          "pin": "[%key:common::config_flow::data::pin%]"
+          "pin": "[%key:common::config_flow::data::pin%]",
+          "defaultActivity": "[%key:common::config_flow::data::defaultActivity%]"
         },
         "title": "[%key:common::config_flow::title%]"
       }
@@ -28,6 +30,7 @@
       "init": {
         "data": {
           "pin": "[%key:common::config_flow::data::pin%]",
+          "defaultActivity": "[%key:common::config_flow::data::defaultActivity%]",
           "host": "[%key:common::config_flow::data::host%]"
         }
       }

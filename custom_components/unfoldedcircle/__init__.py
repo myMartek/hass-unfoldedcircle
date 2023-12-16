@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from pyUnfoldedCircleRemote.remote import UCRemote
 
+import logging
+
 from homeassistant.components import zeroconf
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -10,6 +12,8 @@ from homeassistant.core import HomeAssistant
 
 # from . import ucRemote as remote
 from .const import DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 # TODO List the platforms that you want to support.
 # For your initial PR, limit it to 1 platform.
@@ -21,6 +25,23 @@ PLATFORMS: list[Platform] = [
     Platform.BUTTON,
     Platform.REMOTE,
 ]
+
+
+async def async_migrate_entry(hass, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    _LOGGER.debug("Migrating from version %s", config_entry.version)
+
+    if config_entry.version == 1:
+
+        new = {**config_entry.data}
+        new["defaultActivity"] = ""
+
+        config_entry.version = 2
+        hass.config_entries.async_update_entry(config_entry, data=new)
+
+    _LOGGER.debug("Migration to version %s successful", config_entry.version)
+
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
